@@ -43,4 +43,10 @@ class Move:
     captured: Optional[Coords] = None
 
 
+@dataclass(frozen=True, slots=True)
+class InitialState:
+    board: Board
+    next_id: int
+
+
 Board = list[list[Optional[Piece]]]

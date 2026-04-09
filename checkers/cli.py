@@ -150,7 +150,8 @@ def continue_capture_chain(board: Board, turn: Player, current: Coords) -> Board
 
 
 def main() -> None:
-    board, _ = create_initial_board()
+    initial_state = create_initial_board()
+    board = initial_state.board
     turn = WHITE_PLAYER
 
     while True:

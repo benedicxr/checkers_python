@@ -7,6 +7,7 @@ from .types import (
     COLS,
     Coords,
     INITIAL_PIECE_ROWS,
+    InitialState,
     Piece,
     ROWS,
     WHITE_PLAYER,
@@ -24,7 +25,7 @@ def get_piece(board: Board, r: int, c: int) -> Optional[Piece]:
     return board[r][c]
 
 
-def create_initial_board() -> tuple[Board, int]:
+def create_initial_board() -> InitialState:
     board: Board = [[None for _ in range(COLS)] for _ in range(ROWS)]
     next_id = 1
 
@@ -40,7 +41,7 @@ def create_initial_board() -> tuple[Board, int]:
                 board[r][c] = Piece(id=next_id, color=WHITE_PLAYER, is_king=False)
                 next_id += 1
 
-    return board, next_id
+    return InitialState(board=board, next_id=next_id)
 
 
 def format_board(board: Board) -> str:
