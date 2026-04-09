@@ -56,7 +56,9 @@ def format_board(board: Board) -> str:
                 symbols.append(".")
                 continue
 
-            symbol = "K" if piece.is_king else "W" if piece.color == WHITE_PLAYER else "B"
+            symbol = "w" if piece.color == WHITE_PLAYER else "b"
+            if piece.is_king:
+                symbol = symbol.upper()
             symbols.append(symbol)
 
         lines.append(f"{r + 1:>2}  " + " ".join(symbols))
