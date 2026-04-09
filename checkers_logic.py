@@ -241,3 +241,27 @@ def get_winner_by_board(board: Board, turn: Color) -> Optional[Color]:
                 return None
 
     return BLACK_PLAYER if turn == WHITE_PLAYER else WHITE_PLAYER
+
+
+def format_board(board: Board) -> str:
+    header = "   " + " ".join(chr(ord("a") + c) for c in range(COLS))
+    lines = [header]
+
+    for r in range(ROWS):
+        symbols: list[str] = []
+        for c in range(COLS):
+            piece = board[r][c]
+            if piece is None:
+                symbols.append(".")
+                continue
+
+            symbol = "K" if piece.is_king else "W" if piece.color == WHITE_PLAYER else "B"
+            symbols.append(symbol)
+
+        lines.append(f"{r + 1:>2}  " + " ".join(symbols))
+
+    return "\n".join(lines)
+
+
+def print_board(board: Board) -> None:
+    print(format_board(board))
