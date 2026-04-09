@@ -1,83 +1,27 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Optional
+
+from .board import get_piece, is_inside
+from .types import (
+    BLACK_DIRECTION,
+    BLACK_PLAYER,
+    Coords,
+    FLYING_KINGS,
+    JUMP_STEP,
+    MEN_CAN_CAPTURE_BACKWARDS,
+    MOVE_STEP,
+    Piece,
+    ROWS,
+    SIDES,
+    WHITE_DIRECTION,
+    WHITE_PLAYER,
+    Board,
+    Move,
+)
 
 
-Player = Literal[1, 2]
-Color = Player
-
-ROWS: int = 8
-COLS: int = 8
-WHITE_PLAYER: Player = 1
-BLACK_PLAYER: Player = 2
-
-INITIAL_PIECE_ROWS: int = 3
-MOVE_STEP: int = 1
-JUMP_STEP: int = 2
-
-WHITE_DIRECTION: int = -1
-BLACK_DIRECTION: int = 1
-SIDES: tuple[int, int] = (-1, 1)
-
-MEN_CAN_CAPTURE_BACKWARDS: bool = True
-FLYING_KINGS: bool = True
-
-
-@dataclass(frozen=True, slots=True)
-class Coords:
-    r: int
-    c: int
-
-
-@dataclass(frozen=True, slots=True)
-class Piece:
-    id: int
-    color: Color
-    is_king: bool = False
-
-
-@dataclass(frozen=True, slots=True)
-class Move:
-    type: Literal["simple", "capture"]
-    from_: Coords
-    to: Coords
-    captured: Optional[Coords] = None
-
-
-Board = list[list[Optional[Piece]]]
-
-
-def is_inside(r: int, c: int) -> bool:
-    return 0 <= r < ROWS and 0 <= c < COLS
-
-
-def get_piece(board: Board, r: int, c: int) -> Optional[Piece]:
-    if not is_inside(r, c):
-        return None
-    return board[r][c]
-
-
-def create_initial_board() -> tuple[Board, int]:
-    board: Board = [[None for _ in range(COLS)] for _ in range(ROWS)]
-    next_id = 1
-
-    for r in range(ROWS):
-        for c in range(COLS):
-            if (r + c) % 2 != 1:
-                continue
-
-            if r < INITIAL_PIECE_ROWS:
-                board[r][c] = Piece(id=next_id, color=BLACK_PLAYER, is_king=False)
-                next_id += 1
-            elif r >= ROWS - INITIAL_PIECE_ROWS:
-                board[r][c] = Piece(id=next_id, color=WHITE_PLAYER, is_king=False)
-                next_id += 1
-
-    return board, next_id
-
-
-def get_quiet_moves_for_piece(board: Board, turn: Color, from_: Coords) -> list[Move]:
+def get_quiet_moves_for_piece(board: Board, turn: int, from_: Coords) -> list[Move]:
     piece = get_piece(board, from_.r, from_.c)
     if piece is None or piece.color != turn:
         return []
@@ -109,7 +53,7 @@ def get_quiet_moves_for_piece(board: Board, turn: Color, from_: Coords) -> list[
     return moves
 
 
-def get_captures_for_piece(board: Board, turn: Color, from_: Coords) -> list[Move]:
+def get_captures_for_piece(board: Board, turn: int, from_: Coords) -> list[Move]:
     piece = get_piece(board, from_.r, from_.c)
     if piece is None or piece.color != turn:
         return []
@@ -174,7 +118,7 @@ def get_captures_for_piece(board: Board, turn: Color, from_: Coords) -> list[Mov
     return captures
 
 
-def get_valid_moves_for_piece(board: Board, turn: Color, from_: Coords, *, captures_only: bool = False) -> list[Move]:
+def get_valid_moves_for_piece(board: Board, turn: int, from_: Coords, *, captures_only: bool = False) -> list[Move]:
     piece = get_piece(board, from_.r, from_.c)
     if piece is None or piece.color != turn:
         return []
@@ -208,60 +152,3 @@ def apply_move(board: Board, move: Move) -> Board:
             next_b[move.to.r][move.to.c] = Piece(id=placed.id, color=placed.color, is_king=True)
 
     return next_b
-
-
-def get_winner_by_board(board: Board, turn: Color) -> Optional[Color]:
-    white_count = 0
-    black_count = 0
-
-    for r in range(ROWS):
-        for c in range(COLS):
-            p = board[r][c]
-            if p is None:
-                continue
-            if p.color == WHITE_PLAYER:
-                white_count += 1
-            else:
-                black_count += 1
-
-    if white_count == 0 and black_count == 0:
-        return None
-    if white_count == 0:
-        return BLACK_PLAYER
-    if black_count == 0:
-        return WHITE_PLAYER
-
-    for r in range(ROWS):
-        for c in range(COLS):
-            p = board[r][c]
-            if p is None or p.color != turn:
-                continue
-            from_ = Coords(r, c)
-            if get_captures_for_piece(board, turn, from_) or get_quiet_moves_for_piece(board, turn, from_):
-                return None
-
-    return BLACK_PLAYER if turn == WHITE_PLAYER else WHITE_PLAYER
-
-
-def format_board(board: Board) -> str:
-    header = "   " + " ".join(chr(ord("a") + c) for c in range(COLS))
-    lines = [header]
-
-    for r in range(ROWS):
-        symbols: list[str] = []
-        for c in range(COLS):
-            piece = board[r][c]
-            if piece is None:
-                symbols.append(".")
-                continue
-
-            symbol = "K" if piece.is_king else "W" if piece.color == WHITE_PLAYER else "B"
-            symbols.append(symbol)
-
-        lines.append(f"{r + 1:>2}  " + " ".join(symbols))
-
-    return "\n".join(lines)
-
-
-def print_board(board: Board) -> None:
-    print(format_board(board))
