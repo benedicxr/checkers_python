@@ -3,13 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal, Optional
 
-Player = Literal[1, 2]
-Color = Player
+Player = Literal["white", "black"]
 
 ROWS: int = 8
 COLS: int = 8
-WHITE_PLAYER: Player = 1
-BLACK_PLAYER: Player = 2
+WHITE_PLAYER: Player = "white"
+BLACK_PLAYER: Player = "black"
 
 INITIAL_PIECE_ROWS: int = 3
 MOVE_STEP: int = 1
@@ -32,7 +31,7 @@ class Coords:
 @dataclass(frozen=True, slots=True)
 class Piece:
     id: int
-    color: Color
+    color: Player
     is_king: bool = False
 
 

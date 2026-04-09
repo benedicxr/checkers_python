@@ -12,6 +12,7 @@ from .types import (
     MEN_CAN_CAPTURE_BACKWARDS,
     MOVE_STEP,
     Piece,
+    Player,
     ROWS,
     SIDES,
     WHITE_DIRECTION,
@@ -21,7 +22,7 @@ from .types import (
 )
 
 
-def get_quiet_moves_for_piece(board: Board, turn: int, from_: Coords) -> list[Move]:
+def get_quiet_moves_for_piece(board: Board, turn: Player, from_: Coords) -> list[Move]:
     piece = get_piece(board, from_.r, from_.c)
     if piece is None or piece.color != turn:
         return []
@@ -53,7 +54,7 @@ def get_quiet_moves_for_piece(board: Board, turn: int, from_: Coords) -> list[Mo
     return moves
 
 
-def get_captures_for_piece(board: Board, turn: int, from_: Coords) -> list[Move]:
+def get_captures_for_piece(board: Board, turn: Player, from_: Coords) -> list[Move]:
     piece = get_piece(board, from_.r, from_.c)
     if piece is None or piece.color != turn:
         return []
@@ -118,7 +119,7 @@ def get_captures_for_piece(board: Board, turn: int, from_: Coords) -> list[Move]
     return captures
 
 
-def get_valid_moves_for_piece(board: Board, turn: int, from_: Coords, *, captures_only: bool = False) -> list[Move]:
+def get_valid_moves_for_piece(board: Board, turn: Player, from_: Coords, *, captures_only: bool = False) -> list[Move]:
     piece = get_piece(board, from_.r, from_.c)
     if piece is None or piece.color != turn:
         return []

@@ -18,6 +18,7 @@ from checkers import (
     print_board,
 )
 from checkers.types import Move
+from checkers.types import Player
 
 PLAYER_LABELS = {
     WHITE_PLAYER: "White",
@@ -70,7 +71,7 @@ def parse_coords(raw: str) -> Optional[Coords]:
     return None
 
 
-def get_all_capture_moves(board, turn: int) -> list[Move]:
+def get_all_capture_moves(board: Board, turn: Player) -> list[Move]:
     captures: list[Move] = []
     for r in range(ROWS):
         for c in range(COLS):
@@ -81,7 +82,7 @@ def get_all_capture_moves(board, turn: int) -> list[Move]:
     return captures
 
 
-def prompt_piece_selection(board, turn: int, force_capture: bool = False) -> Coords:
+def prompt_piece_selection(board: Board, turn: Player, force_capture: bool = False) -> Coords:
     while True:
         raw = input(f"Player {PLAYER_LABELS[turn]}, select piece (row col or a1-h8): ")
         coords = parse_coords(raw)
@@ -130,7 +131,7 @@ def format_move(move: Move) -> str:
     return f"{move.type} to {destination}"
 
 
-def continue_capture_chain(board, turn: int, current: Coords) -> Board:
+def continue_capture_chain(board: Board, turn: Player, current: Coords) -> Board:
     while True:
         next_captures = get_captures_for_piece(board, turn, current)
         if not next_captures:

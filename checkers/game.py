@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import Optional
 
 from .moves import get_captures_for_piece, get_quiet_moves_for_piece
-from .types import BLACK_PLAYER, Board, Color, Coords, ROWS, WHITE_PLAYER
+from .types import BLACK_PLAYER, Board, Coords, Player, ROWS, WHITE_PLAYER
 
 
-def get_winner_by_board(board: Board, turn: Color) -> Optional[Color]:
+def get_winner_by_board(board: Board, turn: Player) -> Optional[Player]:
     white_count = 0
     black_count = 0
 
