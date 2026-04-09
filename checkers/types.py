@@ -38,7 +38,7 @@ class Piece:
 @dataclass(frozen=True, slots=True)
 class Move:
     type: Literal["simple", "capture"]
-    from_: Coords
+    origin: Coords
     to: Coords
     captured: Optional[Coords] = None
 

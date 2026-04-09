@@ -22,8 +22,8 @@ from .types import (
 )
 
 
-def get_quiet_moves_for_piece(board: Board, turn: Player, from_: Coords) -> list[Move]:
-    piece = get_piece(board, from_.r, from_.c)
+def get_quiet_moves_for_piece(board: Board, turn: Player, origin: Coords) -> list[Move]:
+    piece = get_piece(board, origin.r, origin.c)
     if piece is None or piece.color != turn:
         return []
 
@@ -32,10 +32,10 @@ def get_quiet_moves_for_piece(board: Board, turn: Player, from_: Coords) -> list
     if piece.is_king and FLYING_KINGS:
         diagonals = ((-1, -1), (-1, 1), (1, -1), (1, 1))
         for dr, dc in diagonals:
-            r = from_.r + dr
-            c = from_.c + dc
+            r = origin.r + dr
+            c = origin.c + dc
             while is_inside(r, c) and get_piece(board, r, c) is None:
-                moves.append(Move(type="simple", from_=from_, to=Coords(r, c)))
+                moves.append(Move(type="simple", origin=origin, to=Coords(r, c)))
                 r += dr
                 c += dc
         return moves
@@ -47,15 +47,15 @@ def get_quiet_moves_for_piece(board: Board, turn: Player, from_: Coords) -> list
 
     for dir_ in directions:
         for side in SIDES:
-            to = Coords(from_.r + dir_ * MOVE_STEP, from_.c + side)
+            to = Coords(origin.r + dir_ * MOVE_STEP, origin.c + side)
             if is_inside(to.r, to.c) and get_piece(board, to.r, to.c) is None:
-                moves.append(Move(type="simple", from_=from_, to=to))
+                moves.append(Move(type="simple", origin=origin, to=to))
 
     return moves
 
 
-def get_captures_for_piece(board: Board, turn: Player, from_: Coords) -> list[Move]:
-    piece = get_piece(board, from_.r, from_.c)
+def get_captures_for_piece(board: Board, turn: Player, origin: Coords) -> list[Move]:
+    piece = get_piece(board, origin.r, origin.c)
     if piece is None or piece.color != turn:
         return []
 
@@ -65,8 +65,8 @@ def get_captures_for_piece(board: Board, turn: Player, from_: Coords) -> list[Mo
         diagonals = ((-1, -1), (-1, 1), (1, -1), (1, 1))
 
         for dr, dc in diagonals:
-            r = from_.r + dr
-            c = from_.c + dc
+            r = origin.r + dr
+            c = origin.c + dc
 
             while is_inside(r, c) and get_piece(board, r, c) is None:
                 r += dr
@@ -85,7 +85,7 @@ def get_captures_for_piece(board: Board, turn: Player, from_: Coords) -> list[Mo
                 captures.append(
                     Move(
                         type="capture",
-                        from_=from_,
+                        origin=origin,
                         to=Coords(land_r, land_c),
                         captured=Coords(r, c),
                     )
@@ -104,8 +104,8 @@ def get_captures_for_piece(board: Board, turn: Player, from_: Coords) -> list[Mo
 
     for dir_ in directions:
         for side in SIDES:
-            mid = Coords(from_.r + dir_ * MOVE_STEP, from_.c + side)
-            to = Coords(from_.r + dir_ * JUMP_STEP, from_.c + side * JUMP_STEP)
+            mid = Coords(origin.r + dir_ * MOVE_STEP, origin.c + side)
+            to = Coords(origin.r + dir_ * JUMP_STEP, origin.c + side * JUMP_STEP)
 
             if not is_inside(to.r, to.c):
                 continue
@@ -114,32 +114,32 @@ def get_captures_for_piece(board: Board, turn: Player, from_: Coords) -> list[Mo
 
             middle_piece = get_piece(board, mid.r, mid.c)
             if middle_piece is not None and middle_piece.color != piece.color:
-                captures.append(Move(type="capture", from_=from_, to=to, captured=mid))
+                captures.append(Move(type="capture", origin=origin, to=to, captured=mid))
 
     return captures
 
 
-def get_valid_moves_for_piece(board: Board, turn: Player, from_: Coords, *, captures_only: bool = False) -> list[Move]:
-    piece = get_piece(board, from_.r, from_.c)
+def get_valid_moves_for_piece(board: Board, turn: Player, origin: Coords, *, captures_only: bool = False) -> list[Move]:
+    piece = get_piece(board, origin.r, origin.c)
     if piece is None or piece.color != turn:
         return []
 
-    captures = get_captures_for_piece(board, turn, from_)
+    captures = get_captures_for_piece(board, turn, origin)
     if captures_only:
         return captures
 
-    quiet = get_quiet_moves_for_piece(board, turn, from_)
+    quiet = get_quiet_moves_for_piece(board, turn, origin)
     return [*captures, *quiet]
 
 
 def apply_move(board: Board, move: Move) -> Board:
     next_b = [row[:] for row in board]
 
-    piece = get_piece(next_b, move.from_.r, move.from_.c)
+    piece = get_piece(next_b, move.origin.r, move.origin.c)
     if piece is None:
         return next_b
 
-    next_b[move.from_.r][move.from_.c] = None
+    next_b[move.origin.r][move.origin.c] = None
     next_b[move.to.r][move.to.c] = piece
 
     if move.type == "capture" and move.captured is not None:
